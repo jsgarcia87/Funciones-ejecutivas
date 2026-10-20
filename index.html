@@ -1,0 +1,2099 @@
+```html
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cerebro en Marcha - Panel de Funciones Ejecutivas (Primaria)</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts: Fredoka (títulos amigables) y Plus Jakarta Sans (alta legibilidad en pizarra) -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        display: ['"Fredoka"', 'sans-serif'],
+                    },
+                    colors: {
+                        inhibicion: { light: '#FEE2E2', DEFAULT: '#EF4444', dark: '#991B1B' },
+                        memoria: { light: '#EDE9FE', DEFAULT: '#8B5CF6', dark: '#5B21B6' },
+                        flexibilidad: { light: '#FEF3C7', DEFAULT: '#F59E0B', dark: '#92400E' },
+                        planificacion: { light: '#DBEAFE', DEFAULT: '#3B82F6', dark: '#1E40AF' },
+                        velocidad: { light: '#D1FAE5', DEFAULT: '#10B981', dark: '#065F46' }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #F8FAFC;
+            background-image: radial-gradient(#CBD5E1 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+        .font-title {
+            font-family: 'Fredoka', sans-serif;
+        }
+        /* Transiciones suaves */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.25s ease-out;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes popIn {
+            0% { transform: scale(0.85); opacity: 0; }
+            70% { transform: scale(1.03); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-pop {
+            animation: popIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        /* Scrollbar personalizada */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        /* Estilo del disco Time Timer */
+        .time-timer-circle {
+            transition: stroke-dashoffset 0.5s linear;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+    </style>
+</head>
+<body class="text-slate-800 min-h-screen flex flex-col">
+
+    <!-- ================= BARRA SUPERIOR (HEADER) ================= -->
+    <header class="bg-white/95 backdrop-blur-md border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between py-3 gap-3">
+                <!-- Logo y Título -->
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-500 flex items-center justify-center text-white shadow-md shadow-indigo-200">
+                            <i class="fa-solid fa-brain text-2xl"></i>
+                        </div>
+                        <div>
+                            <h1 class="font-title text-xl sm:text-2xl font-bold text-slate-900 leading-tight">
+                                Cerebro en Marcha
+                            </h1>
+                            <p class="text-xs sm:text-sm font-medium text-slate-500">
+                                Panel de Funciones Ejecutivas · Educación Primaria
+                            </p>
+                        </div>
+                    </div>
+                    <!-- Botón Modo Pizarra Completa (Móvil/Tablet) -->
+                    <button onclick="toggleFullScreen()" title="Pantalla Completa para Pizarra Digital" class="md:hidden p-2.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-indigo-50 hover:text-indigo-600">
+                        <i class="fa-solid fa-expand text-lg"></i>
+                    </button>
+                </div>
+
+                <!-- Indicador del Día y Accesos Rápidos -->
+                <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+                    <div id="headerDayBadge" class="flex items-center gap-2 bg-indigo-50 border border-indigo-100 px-3.5 py-2 rounded-xl text-indigo-900 font-semibold text-sm">
+                        <i class="fa-regular fa-calendar-check text-indigo-600"></i>
+                        <span id="currentDateText">Cargando fecha...</span>
+                    </div>
+
+                    <button onclick="openSurpriseChallenge()" class="flex items-center gap-2 bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-white font-bold px-4 py-2 rounded-xl shadow-sm hover:shadow transition-all text-sm cursor-pointer active:scale-95">
+                        <i class="fa-solid fa-dice text-base"></i>
+                        <span>Reto Sorpresa</span>
+                    </button>
+
+                    <button onclick="toggleFullScreen()" title="Pantalla Completa para Pizarra Digital" class="hidden md:flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-sm transition-colors">
+                        <i class="fa-solid fa-expand"></i>
+                        <span class="hidden lg:inline">Modo Pizarra</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Pestañas de Navegación Principal -->
+            <nav class="flex space-x-1 sm:space-x-2 overflow-x-auto pb-2 pt-1 no-scrollbar" aria-label="Tabs">
+                <button onclick="switchTab('planificador')" id="tab-btn-planificador" class="nav-tab active-tab flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm sm:text-base transition-all whitespace-nowrap bg-indigo-600 text-white shadow-sm">
+                    <span>📅</span>
+                    <span>Planificador ("¿Qué toca hoy?")</span>
+                </button>
+                <button onclick="switchTab('banco')" id="tab-btn-banco" class="nav-tab flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm sm:text-base transition-all whitespace-nowrap text-slate-600 hover:bg-slate-100">
+                    <span>📚</span>
+                    <span>Banco de Recursos</span>
+                    <span id="totalResourcesBadge" class="ml-1 px-2 py-0.5 text-xs rounded-full bg-slate-200 text-slate-700">12</span>
+                </button>
+                <button onclick="switchTab('juegos')" id="tab-btn-juegos" class="nav-tab flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm sm:text-base transition-all whitespace-nowrap text-slate-600 hover:bg-slate-100">
+                    <span>🎮</span>
+                    <span>Juegos de Pizarra</span>
+                </button>
+                <button onclick="switchTab('herramientas')" id="tab-btn-herramientas" class="nav-tab flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm sm:text-base transition-all whitespace-nowrap text-slate-600 hover:bg-slate-100">
+                    <span>⏱️</span>
+                    <span>Temporizador y Semáforo</span>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- ================= CONTENIDO PRINCIPAL ================= -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- =======================================================
+             SECCIÓN 1: PLANIFICADOR DIARIO Y SEMANAL
+             ======================================================= -->
+        <section id="tab-planificador" class="tab-content active space-y-6">
+            
+            <!-- Selector de Día de la Semana -->
+            <div class="bg-white p-3 sm:p-4 rounded-2xl shadow-sm border border-slate-200">
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400 px-2">Selecciona el día de la semana</span>
+                    <button onclick="resetWeeklyChecks()" class="text-xs font-semibold text-slate-500 hover:text-indigo-600 px-2 py-1 rounded-lg hover:bg-slate-100 transition-colors">
+                        <i class="fa-solid fa-rotate-left mr-1"></i> Reiniciar checks de la semana
+                    </button>
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-5 gap-2.5" id="weekDaysSelector">
+                    <!-- Se rellena dinámicamente por JS (Lunes a Viernes) -->
+                </div>
+            </div>
+
+            <!-- Panel Protagonista del Día Seleccionado -->
+            <div id="dayHeroBanner" class="rounded-3xl p-6 sm:p-8 text-white shadow-lg transition-all relative overflow-hidden bg-gradient-to-r from-red-500 to-rose-600">
+                <div class="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+                    <div class="space-y-2 max-w-2xl">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm text-xs sm:text-sm font-bold uppercase tracking-wide">
+                            <span id="heroDayName">LUNES</span> · FUNCIÓN PROTAGONISTA DEL DÍA
+                        </div>
+                        <h2 id="heroFunctionTitle" class="font-title text-2xl sm:text-4xl font-bold flex items-center gap-3">
+                            🛑 Control Inhibitorio
+                        </h2>
+                        <p id="heroFunctionDesc" class="text-white/90 text-base sm:text-lg font-medium">
+                            Capacidad para parar, pensar antes de actuar, frenar respuestas impulsivas y resistir distracciones.
+                        </p>
+                    </div>
+
+                    <!-- Controles rápidos del día -->
+                    <div class="flex flex-wrap sm:flex-nowrap items-center gap-3 bg-black/15 backdrop-blur-md p-4 rounded-2xl border border-white/15">
+                        <div class="w-full sm:w-auto">
+                            <label for="changeDayFunctionSelect" class="block text-xs font-bold uppercase text-white/80 mb-1">
+                                Cambiar enfoque de hoy:
+                            </label>
+                            <select id="changeDayFunctionSelect" onchange="updateDayExecutiveFunction(this.value)" class="w-full bg-white text-slate-800 font-bold text-sm rounded-xl px-3 py-2.5 focus:outline-none shadow-sm cursor-pointer">
+                                <option value="inhibicion">🛑 Control Inhibitorio</option>
+                                <option value="memoria">🧠 Memoria de Trabajo</option>
+                                <option value="flexibilidad">🔄 Flexibilidad Cognitiva</option>
+                                <option value="planificacion">🗺️ Planificación y Organización</option>
+                                <option value="velocidad">⚡ Velocidad y Metacognición</option>
+                            </select>
+                        </div>
+                        <button onclick="openSurpriseChallenge()" class="w-full sm:w-auto bg-white text-slate-900 hover:bg-amber-50 font-bold px-5 py-3 rounded-xl shadow-md flex items-center justify-center gap-2 transition-transform active:scale-95 whitespace-nowrap">
+                            <i class="fa-solid fa-wand-magic-sparkles text-amber-500 text-lg"></i>
+                            <span>Reto Sorpresa del Día</span>
+                        </button>
+                    </div>
+                </div>
+                <!-- Icono decorativo de fondo -->
+                <i class="fa-solid fa-brain absolute -right-6 -bottom-8 text-9xl text-white/10 pointer-events-none"></i>
+            </div>
+
+            <!-- Grid Inferior: Actividades Programadas para Hoy + Notas de Aula -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                <!-- Columna Izquierda (2/3): Actividades Asignadas al Día -->
+                <div class="lg:col-span-2 bg-white rounded-3xl p-6 shadow-sm border border-slate-200 flex flex-col justify-between">
+                    <div>
+                        <div class="flex flex-wrap items-center justify-between gap-3 mb-6 pb-4 border-b border-slate-100">
+                            <div>
+                                <h3 class="font-title text-xl font-bold text-slate-900 flex items-center gap-2">
+                                    <i class="fa-solid fa-list-check text-indigo-600"></i>
+                                    <span>Actividades Programadas para el <span id="scheduledDayLabel" class="text-indigo-600">Lunes</span></span>
+                                </h3>
+                                <p class="text-sm text-slate-500">Marca las actividades completadas o proyéctalas en grande para tus alumnos.</p>
+                            </div>
+                            <button onclick="openAssignActivityModal()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold px-4 py-2.5 rounded-xl text-sm flex items-center gap-2 transition-colors">
+                                <i class="fa-solid fa-plus"></i>
+                                <span>Asignar Actividad</span>
+                            </button>
+                        </div>
+
+                        <!-- Lista de Actividades del Día -->
+                        <div id="dayScheduledList" class="space-y-4">
+                            <!-- Se rellena por JS -->
+                        </div>
+                    </div>
+
+                    <!-- Sugerencia Rápida según la función del día -->
+                    <div class="mt-6 pt-4 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-sm text-slate-600 bg-slate-50 p-4 rounded-2xl">
+                        <div class="flex items-center gap-2.5">
+                            <i class="fa-solid fa-lightbulb text-amber-500 text-lg"></i>
+                            <span>¿Buscas más ideas para trabajar hoy? Filtra el banco por esta función ejecutiva.</span>
+                        </div>
+                        <button onclick="filterBankByCurrentDayFunction()" class="font-bold text-indigo-600 hover:text-indigo-800 whitespace-nowrap flex items-center gap-1">
+                            <span>Ver recursos recomendados</span>
+                            <i class="fa-solid fa-arrow-right text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Columna Derecha (1/3): Diario / Notas de la Sesión y Resumen Semanal -->
+                <div class="space-y-6">
+                    <!-- Cuaderno de Bitácora del Día -->
+                    <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="font-title text-lg font-bold text-slate-900 flex items-center gap-2">
+                                <i class="fa-solid fa-pen-to-square text-amber-500"></i>
+                                <span>Notas de Clase (<span id="notesDayLabel">Lunes</span>)</span>
+                            </h3>
+                            <span id="notesSavedIndicator" class="text-xs font-semibold text-emerald-600 opacity-0 transition-opacity">
+                                <i class="fa-solid fa-check"></i> Guardado
+                            </span>
+                        </div>
+                        <p class="text-xs text-slate-500 mb-3">
+                            Anota observaciones sobre la atención del grupo, alumnos que destacaron o adaptaciones para la próxima sesión.
+                        </p>
+                        <textarea id="dayNotesTextarea" rows="5" oninput="saveDayNotes(this.value)" placeholder="Ej: Hoy el grupo de 3º ha respondido genial al reto de inhibición después del patio..." class="w-full rounded-2xl border border-slate-200 bg-amber-50/40 p-3.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:bg-white transition-all resize-none"></textarea>
+                    </div>
+
+                    <!-- Progreso Semanal Ejecutivo -->
+                    <div class="bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl p-6 text-white shadow-sm">
+                        <h3 class="font-title text-lg font-bold mb-1 flex items-center gap-2">
+                            <i class="fa-solid fa-chart-pie text-indigo-400"></i>
+                            <span>Progreso de la Semana</span>
+                        </h3>
+                        <p class="text-xs text-slate-300 mb-4">Actividades ejecutivas realizadas con la clase</p>
+                        
+                        <div class="flex items-end justify-between mb-2">
+                            <span id="weeklyProgressText" class="text-2xl font-extrabold text-emerald-400">0 / 0</span>
+                            <span id="weeklyProgressPercent" class="text-sm font-bold text-slate-300">0% completado</span>
+                        </div>
+                        <div class="w-full bg-slate-700 h-3 rounded-full overflow-hidden mb-4">
+                            <div id="weeklyProgressBar" class="bg-gradient-to-r from-emerald-400 to-teal-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+
+                        <button onclick="switchTab('herramientas')" class="w-full bg-white/10 hover:bg-white/20 text-white text-sm font-bold py-2.5 px-4 rounded-xl transition-colors flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-traffic-light text-amber-400"></i>
+                            <span>Abrir Semáforo de Autoinstrucciones</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =======================================================
+             SECCIÓN 2: BANCO DE RECURSOS Y ACTIVIDADES (CRUD)
+             ======================================================= -->
+        <section id="tab-banco" class="tab-content space-y-6">
+            
+            <!-- Cabecera del Banco y Botones de Gestión -->
+            <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-100">
+                    <div>
+                        <h2 class="font-title text-2xl font-bold text-slate-900">📚 Banco de Recursos y Dinámicas</h2>
+                        <p class="text-sm text-slate-500">Explora, filtra, proyecta en la pizarra o añade tus propias actividades de Funciones Ejecutivas.</p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2.5">
+                        <button onclick="openResourceModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-5 py-2.5 rounded-xl shadow-sm flex items-center gap-2 text-sm transition-all cursor-pointer">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>Nuevo Recurso</span>
+                        </button>
+                        <button onclick="exportResourcesJSON()" title="Descargar copia de seguridad JSON" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-3.5 py-2.5 rounded-xl text-sm flex items-center gap-1.5 transition-colors">
+                            <i class="fa-solid fa-download"></i>
+                            <span class="hidden sm:inline">Exportar</span>
+                        </button>
+                        <label class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-3.5 py-2.5 rounded-xl text-sm flex items-center gap-1.5 transition-colors cursor-pointer">
+                            <i class="fa-solid fa-upload"></i>
+                            <span class="hidden sm:inline">Importar</span>
+                            <input type="file" id="importJsonInput" accept=".json" onchange="importResourcesJSON(event)" class="hidden">
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Filtros Interactivos -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-5">
+                    <!-- Buscador por texto -->
+                    <div class="relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-slate-400 text-sm"></i>
+                        <input type="text" id="filterSearch" oninput="renderResourcesGrid()" placeholder="Buscar actividad, palabra clave..." class="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white">
+                    </div>
+
+                    <!-- Filtro Función Ejecutiva -->
+                    <select id="filterFunction" onchange="renderResourcesGrid()" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="todas">🧠 Todas las Funciones Ejecutivas</option>
+                        <option value="inhibicion">🛑 Control Inhibitorio</option>
+                        <option value="memoria">🧠 Memoria de Trabajo</option>
+                        <option value="flexibilidad">🔄 Flexibilidad Cognitiva</option>
+                        <option value="planificacion">🗺️ Planificación y Organización</option>
+                        <option value="velocidad">⚡ Velocidad y Atención</option>
+                    </select>
+
+                    <!-- Filtro Ciclo de Primaria -->
+                    <select id="filterCycle" onchange="renderResourcesGrid()" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="todos">🎓 Todos los Ciclos de Primaria</option>
+                        <option value="1º Ciclo (6-8 años)">1.º Ciclo (1º y 2º - 6 a 8 años)</option>
+                        <option value="2º Ciclo (8-10 años)">2.º Ciclo (3º y 4º - 8 a 10 años)</option>
+                        <option value="3º Ciclo (10-12 años)">3.º Ciclo (5º y 6º - 10 a 12 años)</option>
+                    </select>
+
+                    <!-- Filtro Modalidad -->
+                    <select id="filterModality" onchange="renderResourcesGrid()" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="todas">✨ Todas las Modalidades</option>
+                        <option value="Sin pantallas / Movimiento">🏃 Sin pantallas / Movimiento</option>
+                        <option value="Pizarra Digital">🖥️ Pizarra Digital (Gran Grupo)</option>
+                        <option value="Manipulativo / Mesa">🧩 Manipulativo / Mesa</option>
+                        <option value="Enlace Externo">🔗 Enlace Externo / TIC</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Grid de Tarjetas de Recursos -->
+            <div id="resourcesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Se genera dinámicamente por JS -->
+            </div>
+        </section>
+
+        <!-- =======================================================
+             SECCIÓN 3: MINI-JUEGOS INTERACTIVOS DE PIZARRA DIGITAL
+             ======================================================= -->
+        <section id="tab-juegos" class="tab-content space-y-6">
+            
+            <!-- Selector de Mini-Juego -->
+            <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl">🎮</span>
+                    <div>
+                        <h2 class="font-title text-xl font-bold text-slate-900">Modo Proyección: Juegos de Pizarra</h2>
+                        <p class="text-xs sm:text-sm text-slate-500">Diseñados con botones grandes y alto contraste para jugar toda la clase junta.</p>
+                    </div>
+                </div>
+                <div class="flex gap-2 w-full sm:w-auto">
+                    <button onclick="switchMiniGame('stroop')" id="btn-game-stroop" class="flex-1 sm:flex-initial px-5 py-2.5 rounded-xl font-bold text-sm bg-indigo-600 text-white shadow-sm transition-all">
+                        🛑 1. Reto Stroop ("¡Dilo al revés!")
+                    </button>
+                    <button onclick="switchMiniGame('matriz')" id="btn-game-matriz" class="flex-1 sm:flex-initial px-5 py-2.5 rounded-xl font-bold text-sm bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all">
+                        🧠 2. Matriz de Memoria Visual
+                    </button>
+                </div>
+            </div>
+
+            <!-- MINI-JUEGO 1: RETO STROOP (CONTROL INHIBITORIO Y FLEXIBILIDAD) -->
+            <div id="game-stroop-container" class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
+                    
+                    <!-- Panel de Control para la Maestra -->
+                    <div class="space-y-5 bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                        <div>
+                            <span class="px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700">Control Inhibitorio + Flexibilidad</span>
+                            <h3 class="font-title text-2xl font-bold text-slate-900 mt-2">¡Dilo al revés! (Efecto Stroop)</h3>
+                            <p class="text-sm text-slate-600 mt-1">
+                                Los alumnos deben responder en voz alta según la norma activa. ¡Cambia la norma por sorpresa para entrenar la flexibilidad cognitiva!
+                            </p>
+                        </div>
+
+                        <!-- Selector de Norma Actual -->
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold uppercase text-slate-500">Norma activa en pantalla:</label>
+                            <div class="grid grid-cols-1 gap-2">
+                                <button onclick="setStroopRule('color')" id="rule-btn-color" class="p-3 rounded-xl font-bold text-left border-2 border-indigo-600 bg-indigo-50 text-indigo-900 flex items-center justify-between">
+                                    <span>🎨 Di el COLOR de la tinta (Inhibir lectura)</span>
+                                    <i class="fa-solid fa-circle-check text-indigo-600"></i>
+                                </button>
+                                <button onclick="setStroopRule('word')" id="rule-btn-word" class="p-3 rounded-xl font-bold text-left border-2 border-slate-200 bg-white text-slate-700 flex items-center justify-between">
+                                    <span>📖 Lee lo que DICE la palabra</span>
+                                </button>
+                                <button onclick="setStroopRule('random')" id="rule-btn-random" class="p-3 rounded-xl font-bold text-left border-2 border-slate-200 bg-white text-slate-700 flex items-center justify-between">
+                                    <span>🔄 Cambio Sorpresa en cada turno</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Modo Automático por Segundos -->
+                        <div class="pt-3 border-t border-slate-200 flex items-center justify-between">
+                            <div>
+                                <span class="text-sm font-bold text-slate-800 block">Paso automático</span>
+                                <span class="text-xs text-slate-500">Cambia cada 3 segundos</span>
+                            </div>
+                            <button onclick="toggleStroopAuto()" id="stroopAutoBtn" class="px-4 py-2 rounded-xl font-bold text-sm bg-slate-200 text-slate-700 hover:bg-slate-300 transition-colors">
+                                <i class="fa-solid fa-play mr-1"></i> Activar Auto
+                            </button>
+                        </div>
+
+                        <!-- Marcador de la Clase -->
+                        <div class="pt-3 border-t border-slate-200 flex items-center justify-between">
+                            <div>
+                                <span class="text-xs font-bold uppercase text-slate-400 block">Puntos de la Clase</span>
+                                <span id="stroopScore" class="font-title text-3xl font-bold text-emerald-600">0</span>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="addStroopPoint(1)" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-4 py-2.5 rounded-xl shadow-sm active:scale-95 transition-transform">
+                                    +1 ¡Acierto!
+                                </button>
+                                <button onclick="addStroopPoint(0)" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-3 py-2.5 rounded-xl">
+                                    Reiniciar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pantalla Gigante de Proyección Stroop -->
+                    <div class="lg:col-span-2 flex flex-col items-center justify-center bg-slate-900 rounded-3xl p-8 sm:p-12 min-h-[420px] text-center relative overflow-hidden shadow-inner">
+                        
+                        <!-- Banner de la Regla Actual -->
+                        <div id="stroopRuleBanner" class="mb-8 px-6 py-3 rounded-2xl bg-amber-400 text-slate-950 font-extrabold text-lg sm:text-2xl shadow-lg flex items-center gap-3 animate-pop">
+                            <i class="fa-solid fa-palette text-2xl"></i>
+                            <span id="stroopRuleBannerText">NORMA: ¡Di el COLOR de la tinta!</span>
+                        </div>
+
+                        <!-- Palabra Gigante -->
+                        <div class="my-6 py-8 px-12 rounded-3xl bg-white w-full max-w-xl shadow-2xl flex flex-col items-center justify-center min-h-[200px]">
+                            <span id="stroopStimulusWord" class="font-title text-6xl sm:text-8xl font-extrabold tracking-wider select-none transition-all" style="color: #EF4444;">
+                                AZUL
+                            </span>
+                            <span id="stroopAnswerHint" class="mt-4 text-xs font-bold uppercase tracking-widest text-slate-400">
+                                (Respuesta correcta: ROJO)
+                            </span>
+                        </div>
+
+                        <!-- Botón Gigante Siguiente Estímulo -->
+                        <div class="mt-6 flex flex-wrap justify-center gap-4">
+                            <button onclick="nextStroopStimulus(true)" class="bg-indigo-500 hover:bg-indigo-400 text-white font-title text-xl sm:text-2xl font-bold px-8 py-4 rounded-2xl shadow-lg hover:shadow-indigo-500/30 transition-all active:scale-95 flex items-center gap-3 cursor-pointer">
+                                <span>Siguiente Estímulo</span>
+                                <i class="fa-solid fa-forward-step"></i>
+                            </button>
+                            <button onclick="forceSurpriseRuleChange()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-5 py-4 rounded-2xl shadow-lg transition-all active:scale-95 flex items-center gap-2 cursor-pointer">
+                                <i class="fa-solid fa-bolt"></i>
+                                <span>¡Cambiar Norma Ahora!</span>
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- MINI-JUEGO 2: MATRIZ DE MEMORIA VISUAL (MEMORIA DE TRABAJO) -->
+            <div id="game-matriz-container" class="hidden bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
+                    
+                    <!-- Panel de Control Matriz -->
+                    <div class="space-y-5 bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                        <div>
+                            <span class="px-3 py-1 rounded-full text-xs font-bold bg-purple-100 text-purple-700">Memoria de Trabajo Visoespacial</span>
+                            <h3 class="font-title text-2xl font-bold text-slate-900 mt-2">¿Qué había y dónde?</h3>
+                            <p class="text-sm text-slate-600 mt-1">
+                                Observad las casillas iluminadas durante la cuenta atrás. Cuando se oculten, los alumnos deben salir a la pizarra o decir las coordenadas (ej. A2, B3) para descubrirlas.
+                            </p>
+                        </div>
+
+                        <!-- Nivel / Tamaño de Cuadrícula -->
+                        <div>
+                            <label class="text-xs font-bold uppercase text-slate-500 block mb-2">Tamaño de la Cuadrícula (Ciclo):</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button onclick="setMatrixSize(3)" id="matrix-size-3" class="p-2.5 rounded-xl font-bold text-sm border-2 border-purple-600 bg-purple-50 text-purple-900">
+                                    3x3 (1.º y 2.º Ciclo)
+                                </button>
+                                <button onclick="setMatrixSize(4)" id="matrix-size-4" class="p-2.5 rounded-xl font-bold text-sm border-2 border-slate-200 bg-white text-slate-700">
+                                    4x4 (2.º y 3.º Ciclo)
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Cantidad de elementos a recordar -->
+                        <div>
+                            <label class="text-xs font-bold uppercase text-slate-500 block mb-1">
+                                Elementos a memorizar: <span id="matrixItemsCountLabel" class="text-purple-700 font-extrabold">4 objetos</span>
+                            </label>
+                            <input type="range" id="matrixItemsRange" min="3" max="7" value="4" oninput="updateMatrixItemsCount(this.value)" class="w-full accent-purple-600 cursor-pointer">
+                        </div>
+
+                        <!-- Botones de Acción del Juego -->
+                        <div class="space-y-2.5 pt-2">
+                            <button onclick="startMatrixRound()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-md flex items-center justify-center gap-2 transition-transform active:scale-95 cursor-pointer">
+                                <i class="fa-solid fa-eye"></i>
+                                <span>Nueva Partida (Mostrar 4 seg)</span>
+                            </button>
+                            <button onclick="revealMatrixSolution()" class="w-full bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-2.5 px-4 rounded-xl text-sm flex items-center justify-center gap-2 transition-colors">
+                                <i class="fa-solid fa-lightbulb"></i>
+                                <span>Mostrar Solución Completa</span>
+                            </button>
+                        </div>
+
+                        <!-- Estado de la Ronda -->
+                        <div class="p-4 rounded-xl bg-white border border-slate-200 flex items-center justify-between">
+                            <span class="text-sm font-bold text-slate-600">Encontrados:</span>
+                            <span id="matrixFoundCounter" class="font-title text-2xl font-bold text-purple-600">0 / 4</span>
+                        </div>
+                    </div>
+
+                    <!-- Tablero de la Matriz con Coordenadas para Pizarra Digital -->
+                    <div class="lg:col-span-2 flex flex-col items-center justify-center bg-slate-900 rounded-3xl p-6 sm:p-10 min-h-[440px]">
+                        <div id="matrixStatusBanner" class="mb-5 px-5 py-2 rounded-full bg-purple-500/20 border border-purple-400/30 text-purple-200 font-bold text-sm sm:text-base">
+                            Pulsa "Nueva Partida" para iluminar los objetos en la cuadrícula
+                        </div>
+
+                        <!-- Contenedor de la Cuadrícula -->
+                        <div id="matrixBoardWrapper" class="w-full max-w-md">
+                            <!-- Se genera dinámicamente por JS con coordenadas A, B, C... y 1, 2, 3... -->
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </section>
+
+        <!-- =======================================================
+             SECCIÓN 4: HERRAMIENTAS DE AULA (TEMPORIZADOR Y SEMÁFORO)
+             ======================================================= -->
+        <section id="tab-herramientas" class="tab-content space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                
+                <!-- HERRAMIENTA 1: TEMPORIZADOR VISUAL (ESTILO TIME TIMER) -->
+                <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200 flex flex-col items-center justify-between">
+                    <div class="w-full text-center mb-4">
+                        <span class="px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700">Gestión del Tiempo y Planificación</span>
+                        <h2 class="font-title text-2xl sm:text-3xl font-bold text-slate-900 mt-2">⏱️ Temporizador Visual de Aula</h2>
+                        <p class="text-sm text-slate-500">El círculo de color disminuye visualmente para ayudar a autorregular el tiempo de la tarea.</p>
+                    </div>
+
+                    <!-- Reloj Circular SVG -->
+                    <div class="relative w-64 h-64 sm:w-72 sm:h-72 flex items-center justify-center my-2">
+                        <svg class="w-full h-full" viewBox="0 0 120 120">
+                            <!-- Círculo de fondo -->
+                            <circle cx="60" cy="60" r="52" fill="none" stroke="#F1F5F9" stroke-width="12" />
+                            <!-- Círculo de progreso visual -->
+                            <circle id="timerProgressCircle" class="time-timer-circle" cx="60" cy="60" r="52" fill="none" stroke="#EF4444" stroke-width="12" stroke-linecap="round" stroke-dasharray="326.72" stroke-dashoffset="0" />
+                        </svg>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+                            <span id="timerDisplayText" class="font-title text-5xl sm:text-6xl font-bold text-slate-900 tracking-tight">05:00</span>
+                            <span id="timerStateSubtext" class="text-xs font-bold uppercase tracking-wider text-slate-400 mt-1">Listo para empezar</span>
+                        </div>
+                    </div>
+
+                    <!-- Botones Rápidos de Minutos -->
+                    <div class="w-full space-y-4 mt-4">
+                        <div class="flex flex-wrap justify-center gap-2">
+                            <button onclick="setTimerMinutes(2)" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 font-bold text-sm transition-colors">2 min</button>
+                            <button onclick="setTimerMinutes(5)" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 font-bold text-sm transition-colors">5 min</button>
+                            <button onclick="setTimerMinutes(10)" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 font-bold text-sm transition-colors">10 min</button>
+                            <button onclick="setTimerMinutes(15)" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 font-bold text-sm transition-colors">15 min</button>
+                            <button onclick="setTimerMinutes(20)" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 font-bold text-sm transition-colors">20 min</button>
+                        </div>
+
+                        <!-- Controles Play / Pause / Reset -->
+                        <div class="flex justify-center gap-3">
+                            <button onclick="toggleTimerStartPause()" id="timerStartBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-8 py-3.5 rounded-2xl shadow-md flex items-center gap-2 transition-transform active:scale-95 cursor-pointer">
+                                <i class="fa-solid fa-play"></i>
+                                <span>Iniciar Tiempo</span>
+                            </button>
+                            <button onclick="resetTimer()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-5 py-3.5 rounded-2xl transition-colors">
+                                <i class="fa-solid fa-rotate-left"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- HERRAMIENTA 2: SEMÁFORO DE LA AUTORREGULACIÓN (AUTOINSTRUCCIONES DE MEICHENBAUM) -->
+                <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200 flex flex-col justify-between">
+                    <div class="text-center mb-4">
+                        <span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">Método de Autoinstrucciones de Meichenbaum</span>
+                        <h2 class="font-title text-2xl sm:text-3xl font-bold text-slate-900 mt-2">🚦 Semáforo de la Autorregulación</h2>
+                        <p class="text-sm text-slate-500">Haz clic en cada fase del semáforo para guiar a los alumnos antes y durante cualquier reto o tarea.</p>
+                    </div>
+
+                    <!-- Luces Interactivas del Semáforo -->
+                    <div class="space-y-4 my-auto">
+                        
+                        <!-- FASE ROJA -->
+                        <div onclick="activateTrafficLight('red')" id="light-card-red" class="cursor-pointer rounded-2xl p-5 border-2 border-red-500 bg-red-50 transition-all flex items-center gap-5 shadow-sm">
+                            <div id="light-circle-red" class="w-16 h-16 rounded-full bg-red-500 text-white flex items-center justify-center text-3xl shrink-0 shadow-lg shadow-red-500/40 ring-4 ring-red-200">
+                                🛑
+                            </div>
+                            <div>
+                                <span class="text-xs font-extrabold uppercase tracking-wider text-red-600">Paso 1 · Control Inhibitorio</span>
+                                <h3 class="font-title text-xl font-bold text-slate-900">ROJO: Me paro, respiro y observo</h3>
+                                <p class="text-sm text-slate-700 mt-0.5">
+                                    "¿Cuál es nuestra misión hoy? Escucho las normas con atención antes de tocar el material."
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- FASE AMARILLA -->
+                        <div onclick="activateTrafficLight('yellow')" id="light-card-yellow" class="cursor-pointer rounded-2xl p-5 border-2 border-slate-200 bg-white opacity-60 hover:opacity-90 transition-all flex items-center gap-5">
+                            <div id="light-circle-yellow" class="w-16 h-16 rounded-full bg-amber-400 text-white flex items-center justify-center text-3xl shrink-0">
+                                🤔
+                            </div>
+                            <div>
+                                <span class="text-xs font-extrabold uppercase tracking-wider text-amber-600">Paso 2 · Planificación y Memoria</span>
+                                <h3 class="font-title text-xl font-bold text-slate-900">AMARILLO: Pienso y trazo un plan</h3>
+                                <p class="text-sm text-slate-700 mt-0.5">
+                                    "¿Qué materiales necesito? ¿Qué pasos voy a seguir primero y qué haré si me equivoco?"
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- FASE VERDE -->
+                        <div onclick="activateTrafficLight('green')" id="light-card-green" class="cursor-pointer rounded-2xl p-5 border-2 border-slate-200 bg-white opacity-60 hover:opacity-90 transition-all flex items-center gap-5">
+                            <div id="light-circle-green" class="w-16 h-16 rounded-full bg-emerald-500 text-white flex items-center justify-center text-3xl shrink-0">
+                                🚀
+                            </div>
+                            <div>
+                                <span class="text-xs font-extrabold uppercase tracking-wider text-emerald-600">Paso 3 · Ejecución y Metacognición</span>
+                                <h3 class="font-title text-xl font-bold text-slate-900">VERDE: ¡Actúo y compruebo mi resultado!</h3>
+                                <p class="text-sm text-slate-700 mt-0.5">
+                                    "Pongo en marcha mi plan con cuidado y al terminar reviso: ¿Ha funcionado mi estrategia?"
+                                </p>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="mt-5 pt-4 border-t border-slate-100 text-center">
+                        <p class="text-xs text-slate-400 font-medium">
+                            💡 Consejo de aula: Deja iluminada la fase en la que se encuentra la clase para fomentar la autonomía.
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ================= MODAL 1: PROYECTAR ACTIVIDAD / RETO EN GRANDE PARA LA CLASE ================= -->
+    <div id="projectorModal" class="fixed inset-0 z-50 hidden bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-3xl max-w-4xl w-full p-6 sm:p-10 shadow-2xl border-4 border-indigo-500 animate-pop relative my-8">
+            <!-- Botón Cerrar -->
+            <button onclick="closeProjectorModal()" class="absolute top-5 right-5 w-11 h-11 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center text-xl transition-colors">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <!-- Etiquetas Superiores -->
+            <div class="flex flex-wrap items-center gap-2 mb-4" id="projBadges">
+                <!-- Se inserta por JS -->
+            </div>
+
+            <!-- Título Gigante -->
+            <h2 id="projTitle" class="font-title text-3xl sm:text-5xl font-bold text-slate-900 mb-6 leading-tight">
+                Título de la Actividad
+            </h2>
+
+            <!-- Consigna Destacada para leer a los niños -->
+            <div class="bg-gradient-to-r from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-3xl p-6 sm:p-8 mb-6">
+                <div class="flex items-center gap-2.5 text-indigo-700 font-extrabold text-sm sm:text-base uppercase tracking-wider mb-2">
+                    <i class="fa-solid fa-bullhorn text-xl"></i>
+                    <span>Misión para la Clase (Leer en voz alta):</span>
+                </div>
+                <p id="projChildPrompt" class="font-title text-xl sm:text-3xl text-slate-900 font-semibold leading-snug">
+                    "Consigna para los alumnos..."
+                </p>
+            </div>
+
+            <!-- Guía para la maestra -->
+            <div class="bg-slate-50 rounded-2xl p-5 border border-slate-200 mb-6">
+                <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-400 mb-1">
+                    Guía paso a paso para la maestra:
+                </h4>
+                <p id="projTeacherSteps" class="text-slate-700 text-base sm:text-lg leading-relaxed"></p>
+            </div>
+
+            <!-- Pie del Modal Proyector -->
+            <div class="flex flex-wrap items-center justify-between gap-4 pt-2">
+                <div id="projExternalLinkWrap"></div>
+                <div class="flex flex-wrap gap-3 ml-auto">
+                    <button onclick="openSurpriseChallenge()" class="bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold px-5 py-3 rounded-xl flex items-center gap-2 transition-colors">
+                        <i class="fa-solid fa-dice"></i>
+                        <span>Otro Reto al Azar</span>
+                    </button>
+                    <button onclick="switchTab('herramientas'); closeProjectorModal();" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-3 rounded-xl shadow-md flex items-center gap-2 transition-colors">
+                        <i class="fa-solid fa-stopwatch"></i>
+                        <span>Ir al Temporizador</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= MODAL 2: CREAR / EDITAR RECURSO EN EL BANCO ================= -->
+    <div id="resourceFormModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl animate-pop my-8 max-h-[92vh] overflow-y-auto">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-5">
+                <h3 id="resourceModalHeading" class="font-title text-2xl font-bold text-slate-900">✨ Nuevo Recurso de Aula</h3>
+                <button onclick="closeResourceModal()" class="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <form id="resourceForm" onsubmit="saveResourceForm(event)" class="space-y-4">
+                <input type="hidden" id="resId">
+
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Título de la Actividad *</label>
+                    <input type="text" id="resTitle" required placeholder="Ej: Simón dice al revés" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm font-semibold">
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Función Ejecutiva Principal *</label>
+                        <select id="resFunction" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm font-semibold">
+                            <option value="inhibicion">🛑 Control Inhibitorio</option>
+                            <option value="memoria">🧠 Memoria de Trabajo</option>
+                            <option value="flexibilidad">🔄 Flexibilidad Cognitiva</option>
+                            <option value="planificacion">🗺️ Planificación y Organización</option>
+                            <option value="velocidad">⚡ Velocidad y Atención</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Ciclo Recomendado *</label>
+                        <select id="resCycle" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm font-semibold">
+                            <option value="1º Ciclo (6-8 años)">1.º Ciclo (1º-2º Primaria)</option>
+                            <option value="2º Ciclo (8-10 años)">2.º Ciclo (3º-4º Primaria)</option>
+                            <option value="3º Ciclo (10-12 años)">3.º Ciclo (5º-6º Primaria)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Modalidad de Trabajo *</label>
+                        <select id="resModality" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm font-semibold">
+                            <option value="Sin pantallas / Movimiento">🏃 Sin pantallas / Movimiento</option>
+                            <option value="Pizarra Digital">🖥️ Pizarra Digital</option>
+                            <option value="Manipulativo / Mesa">🧩 Manipulativo / Mesa</option>
+                            <option value="Enlace Externo">🔗 Enlace Externo</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Duración Estimada *</label>
+                        <input type="text" id="resDuration" required placeholder="Ej: 10 min" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Descripción paso a paso (Para la maestra) *</label>
+                    <textarea id="resSteps" rows="3" required placeholder="Explica brevemente la dinámica o las reglas del juego..." class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Consigna para decir a los niños (Para proyectar) *</label>
+                    <textarea id="resChildPrompt" rows="2" required placeholder="Ej: ¡Atención detectives! Cuando yo dé una palmada, vosotros daréis dos..." class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Enlace Web Externo (Opcional - Genially, vídeo, juego...)</label>
+                    <input type="url" id="resLink" placeholder="https://..." class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm">
+                </div>
+
+                <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
+                    <button type="button" onclick="closeResourceModal()" class="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-sm">
+                        Guardar Recurso
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================= MODAL 3: ASIGNAR ACTIVIDAD DEL BANCO AL DÍA ================= -->
+    <div id="assignModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl animate-pop max-h-[85vh] flex flex-col">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
+                <div>
+                    <h3 class="font-title text-xl font-bold text-slate-900">Añadir actividad al <span id="assignModalDayName" class="text-indigo-600">Lunes</span></h3>
+                    <p class="text-xs text-slate-500">Elige un recurso de tu biblioteca para programarlo en este día.</p>
+                </div>
+                <button onclick="closeAssignActivityModal()" class="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div id="assignModalList" class="space-y-2.5 overflow-y-auto pr-1 flex-grow">
+                <!-- Se rellena por JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Notificación Toast Flotante -->
+    <div id="toastNotification" class="fixed bottom-5 right-5 z-50 hidden bg-slate-900 text-white px-5 py-3.5 rounded-2xl shadow-xl flex items-center gap-3 text-sm font-semibold animate-pop">
+        <i class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
+        <span id="toastMessage">Acción completada</span>
+    </div>
+
+    <!-- ================= LÓGICA JAVASCRIPT DE LA APLICACIÓN ================= -->
+    <script>
+        /* =========================================================================
+           1. DEFINICIÓN DE FUNCIONES EJECUTIVAS Y DATOS PRECARGADOS (12 RECURSOS)
+           ========================================================================= */
+        const EXECUTIVE_FUNCTIONS = {
+            inhibicion: {
+                id: 'inhibicion',
+                name: 'Control Inhibitorio',
+                icon: '🛑',
+                shortDesc: 'Parar y pensar antes de actuar',
+                fullDesc: 'Capacidad para parar, pensar antes de actuar, frenar respuestas automáticas o impulsivas y resistir distracciones en el aula.',
+                badgeClass: 'bg-red-100 text-red-800 border-red-200',
+                bannerGradient: 'from-red-500 to-rose-600'
+            },
+            memoria: {
+                id: 'memoria',
+                name: 'Memoria de Trabajo',
+                icon: '🧠',
+                shortDesc: 'Retener y manipular información',
+                fullDesc: 'Habilidad para mantener información en la mente a corto plazo y operar con ella (seguir instrucciones de varios pasos, cálculo mental, secuencias).',
+                badgeClass: 'bg-purple-100 text-purple-800 border-purple-200',
+                bannerGradient: 'from-purple-600 to-indigo-600'
+            },
+            flexibilidad: {
+                id: 'flexibilidad',
+                name: 'Flexibilidad Cognitiva',
+                icon: '🔄',
+                shortDesc: 'Adaptarse a cambios y nuevas reglas',
+                fullDesc: 'Capacidad para adaptarse rápidamente a cambios de normas, buscar soluciones alternativas ante un problema y ver distintas perspectivas.',
+                badgeClass: 'bg-amber-100 text-amber-900 border-amber-200',
+                bannerGradient: 'from-amber-500 to-orange-500'
+            },
+            planificacion: {
+                id: 'planificacion',
+                name: 'Planificación y Organización',
+                icon: '🗺️',
+                shortDesc: 'Trazar planes, secuencias y tiempo',
+                fullDesc: 'Capacidad para fijar una meta, anticipar los pasos necesarios antes de empezar, organizar materiales y gestionar el tiempo disponible.',
+                badgeClass: 'bg-blue-100 text-blue-800 border-blue-200',
+                bannerGradient: 'from-blue-500 to-cyan-600'
+            },
+            velocidad: {
+                id: 'velocidad',
+                name: 'Velocidad y Metacognición',
+                icon: '⚡',
+                shortDesc: 'Agilidad mental y reflexión semanal',
+                fullDesc: 'Agilidad para percibir y responder a estímulos junto con la capacidad de autoevaluar cómo hemos aprendido y qué estrategias nos funcionan mejor.',
+                badgeClass: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+                bannerGradient: 'from-emerald-500 to-teal-600'
+            }
+        };
+
+        const DEFAULT_RESOURCES = [
+            {
+                id: 'res-1',
+                title: 'El Director de Orquesta Rebelde (Simón al revés)',
+                func: 'inhibicion',
+                cycle: '1º Ciclo (6-8 años)',
+                modality: 'Sin pantallas / Movimiento',
+                duration: '10 min',
+                steps: 'La maestra establece dos gestos opuestos: cuando dice "Cielo" los niños deben tocar el suelo; cuando dice "Suelo" deben estirar los brazos al techo. Después se añade: "Aplauso" = silencio total, y "Silencio" = dar una palmada.',
+                childPrompt: '¡Atención a la trampa! Mi voz intentará engañaros: cuando yo diga CIELO, tocaréis el suelo. Cuando diga SUELO, tocaréis el cielo. ¡Frenad antes de moveros!',
+                link: ''
+            },
+            {
+                id: 'res-2',
+                title: 'Semáforo Musical con Regla Congelada',
+                func: 'inhibicion',
+                cycle: '1º Ciclo (6-8 años)',
+                modality: 'Sin pantallas / Movimiento',
+                duration: '10 min',
+                steps: 'Los alumnos se desplazan por el aula mientras suena música o palmas. Al mostrar una tarjeta ROJA no deben parar, sino caminar a cámara lenta; al mostrar la VERDE deben quedarse como estatuas en equilibrio sobre un pie.',
+                childPrompt: 'Hoy el semáforo se ha vuelto loco: el color VERDE os convierte en estatuas de hielo y el color ROJO os hace caminar en cámara superlenta.',
+                link: ''
+            },
+            {
+                id: 'res-3',
+                title: '¡Palabra Prohibida en la Asamblea!',
+                func: 'inhibicion',
+                cycle: '2º Ciclo (8-10 años)',
+                modality: 'Sin pantallas / Movimiento',
+                duration: '12 min',
+                steps: 'Por parejas o en gran grupo, la maestra hace preguntas rápidas sobre el tema del día, pero está prohibido pronunciar las palabras "SÍ", "NO" y el color "BLANCO". Deben usar sinónimos o rodeos controlando el impulso.',
+                childPrompt: 'Responded a mis preguntas durante un minuto sin decir ni "SÍ", ni "NO", ni "BLANCO". ¡Pensad vuestra frase antes de abrir la boca!',
+                link: ''
+            },
+            {
+                id: 'res-4',
+                title: 'La Maleta Encadenada con Condición',
+                func: 'memoria',
+                cycle: '1º Ciclo (6-8 años)',
+                modality: 'Sin pantallas / Movimiento',
+                duration: '10 min',
+                steps: 'Juego de memoria auditiva secuencial. Cada alumno repite los objetos anteriores en orden y añade uno nuevo, pero solo valen objetos que quepan en una mochila escolar o que empiecen por una sílaba concreta.',
+                childPrompt: 'Vamos de excursión y guardamos cosas en la mochila. Repite en orden todo lo que han dicho tus compañeros y añade un objeto más.',
+                link: ''
+            },
+            {
+                id: 'res-5',
+                title: 'El Camarero Despistado (Recados Inversos)',
+                func: 'memoria',
+                cycle: '2º Ciclo (8-10 años)',
+                modality: 'Manipulativo / Mesa',
+                duration: '15 min',
+                steps: 'Un alumno hace de camarero sin papel ni lápiz. Tres compañeros piden un menú (ej. "Macarrones, agua y manzana"). El camarero debe repetir el pedido exactamente en el ORDEN INVERSO al que se lo han dicho.',
+                childPrompt: 'Escucha con atención los 4 elementos que pide la mesa y repítelos desde el último hasta el primero sin apuntar nada.',
+                link: ''
+            },
+            {
+                id: 'res-6',
+                title: 'Código Secreto Alfanumérico Mental',
+                func: 'memoria',
+                cycle: '3º Ciclo (10-12 años)',
+                modality: 'Pizarra Digital',
+                duration: '10 min',
+                steps: 'La maestra dice en voz alta una serie mezclada de números y letras desordenados (ej. "4 - M - 1 - A - 9"). Los alumnos deben mantenerlos en la cabeza y decir primero los números de menor a mayor y luego las letras en orden alfabético (1 - 4 - 9 - A - M).',
+                childPrompt: 'Escuchad el código secreto con los ojos cerrados. Ordenad en vuestra mente primero los números de menor a mayor y después las letras.',
+                link: ''
+            },
+            {
+                id: 'res-7',
+                title: 'Clasificación Cambiante (3 Criterios)',
+                func: 'flexibilidad',
+                cycle: '1º Ciclo (6-8 años)',
+                modality: 'Manipulativo / Mesa',
+                duration: '15 min',
+                steps: 'Con bloques lógicos o tarjetas de vocabulario, los equipos agrupan los elementos por color. Al sonar una campanilla, deben deshacer los grupos y clasificarlos por forma; a la tercera campanilla, por tamaño o letra inicial.',
+                childPrompt: 'Agrupad las piezas según la pista actual. Cuando suene la campana, ¡olvidamos la norma anterior y buscamos una nueva forma de agruparlas!',
+                link: ''
+            },
+            {
+                id: 'res-8',
+                title: '10 Usos Increíbles para un Objeto Cotidiano',
+                func: 'flexibilidad',
+                cycle: '2º Ciclo (8-10 años)',
+                modality: 'Sin pantallas / Movimiento',
+                duration: '10 min',
+                steps: 'Muestra un objeto sencillo del aula (un clip, un rollo de cartón, una regla). Por equipos tienen 3 minutos para inventar usos alternativos creativos que NO sean su función habitual, fomentando el pensamiento divergente.',
+                childPrompt: 'Este objeto ya no sirve para lo de siempre. ¿Qué otras 5 utilidades locas o ingeniosas podría tener en una isla desierta?',
+                link: ''
+            },
+            {
+                id: 'res-9',
+                title: 'Debate de Sombreros Cambiantes',
+                func: 'flexibilidad',
+                cycle: '3º Ciclo (10-12 años)',
+                modality: 'Sin pantallas / Movimiento',
+                duration: '15 min',
+                steps: 'Se plantea un dilema escolar cercano (ej. "¿Deberíamos tener deberes o proyectos?"). A mitad de la exposición, cuando la maestra dice "¡Cambio de gafas!", cada grupo debe defender con argumentos la postura exactamente contraria.',
+                childPrompt: 'Defended vuestra postura con buenos argumentos, pero estad atentos: cuando diga "¡Cambio de gafas!", tendréis que poneros en el lugar del otro equipo.',
+                link: ''
+            },
+            {
+                id: 'res-10',
+                title: 'Arquitectos Antes de Tocar (Torre Cooperativa)',
+                func: 'planificacion',
+                cycle: '2º Ciclo (8-10 años)',
+                modality: 'Manipulativo / Mesa',
+                duration: '15 min',
+                steps: 'Cada equipo recibe 10 folios reciclados y celo para construir la torre más alta. Regla clave: los primeros 3 minutos tienen las manos atrás y SOLO pueden hablar y dibujar el plano antes de tocar el material.',
+                childPrompt: 'Durante los primeros 3 minutos nadie puede tocar el papel. Trazad vuestro plano, repartid tareas y pensad la estructura antes de construir.',
+                link: ''
+            },
+            {
+                id: 'res-11',
+                title: 'El Robot Programado en la Cuadrícula',
+                func: 'planificacion',
+                cycle: '1º Ciclo (6-8 años)',
+                modality: 'Pizarra Digital',
+                duration: '12 min',
+                steps: 'Un alumno es el "Robot" y otro el "Programador". Para llevar al robot desde la puerta hasta la pizarra sorteando mochilas, el programador debe decir TODA la secuencia de pasos por adelantado (ej. "3 pasos adelante, giro derecha, 2 pasos") antes de que el robot se mueva.',
+                childPrompt: 'El robot solo se mueve cuando recibe el programa completo. Calcula todos los pasos y giros en tu cabeza antes de darle al botón de inicio.',
+                link: ''
+            },
+            {
+                id: 'res-12',
+                title: 'Detectives del Tiempo y Asamblea Metacognitiva',
+                func: 'velocidad',
+                cycle: '3º Ciclo (10-12 años)',
+                modality: 'Pizarra Digital',
+                duration: '10 min',
+                steps: 'Antes de recoger el aula o hacer un reto rápido de cálculo/vocabulario, cada alumno estima en un post-it cuántos segundos tardará la clase. Después se cronometra y se reflexiona: "¿Qué nos ha hecho ir más rápido o distraernos esta semana?".',
+                childPrompt: '¿Cuánto tiempo creéis que tardaremos en superar el reto y dejar las mesas listas? Hagamos nuestra predicción y evaluemos nuestro truco mental de la semana.',
+                link: ''
+            }
+        ];
+
+        const INITIAL_WEEK_CONFIG = {
+            lunes: {
+                key: 'lunes',
+                label: 'Lunes',
+                func: 'inhibicion',
+                scheduled: [
+                    { resId: 'res-1', completed: false },
+                    { resId: 'res-3', completed: false }
+                ],
+                notes: ''
+            },
+            martes: {
+                key: 'martes',
+                label: 'Martes',
+                func: 'memoria',
+                scheduled: [
+                    { resId: 'res-4', completed: false },
+                    { resId: 'res-5', completed: false }
+                ],
+                notes: ''
+            },
+            miercoles: {
+                key: 'miercoles',
+                label: 'Miércoles',
+                func: 'flexibilidad',
+                scheduled: [
+                    { resId: 'res-7', completed: false },
+                    { resId: 'res-8', completed: false }
+                ],
+                notes: ''
+            },
+            jueves: {
+                key: 'jueves',
+                label: 'Jueves',
+                func: 'planificacion',
+                scheduled: [
+                    { resId: 'res-11', completed: false },
+                    { resId: 'res-10', completed: false }
+                ],
+                notes: ''
+            },
+            viernes: {
+                key: 'viernes',
+                label: 'Viernes',
+                func: 'velocidad',
+                scheduled: [
+                    { resId: 'res-12', completed: false }
+                ],
+                notes: ''
+            }
+        };
+
+        /* =========================================================================
+           2. ESTADO GLOBAL Y PERSISTENCIA EN LOCALSTORAGE
+           ========================================================================= */
+        const STORAGE_KEYS = {
+            RESOURCES: 'cerebro_en_marcha_resources_v1',
+            WEEK_PLAN: 'cerebro_en_marcha_weekplan_v1'
+        };
+
+        let resources = [];
+        let weekPlan = {};
+        let selectedDayKey = 'lunes';
+
+        function loadAppState() {
+            try {
+                const savedResources = localStorage.getItem(STORAGE_KEYS.RESOURCES);
+                resources = savedResources ? JSON.parse(savedResources) : [...DEFAULT_RESOURCES];
+
+                const savedWeek = localStorage.getItem(STORAGE_KEYS.WEEK_PLAN);
+                weekPlan = savedWeek ? JSON.parse(savedWeek) : JSON.parse(JSON.stringify(INITIAL_WEEK_CONFIG));
+            } catch (e) {
+                console.error('Error cargando localStorage:', e);
+                resources = [...DEFAULT_RESOURCES];
+                weekPlan = JSON.parse(JSON.stringify(INITIAL_WEEK_CONFIG));
+            }
+        }
+
+        function saveResourcesState() {
+            localStorage.setItem(STORAGE_KEYS.RESOURCES, JSON.stringify(resources));
+            document.getElementById('totalResourcesBadge').textContent = resources.length;
+        }
+
+        function saveWeekState() {
+            localStorage.setItem(STORAGE_KEYS.WEEK_PLAN, JSON.stringify(weekPlan));
+            updateWeeklyProgressUI();
+        }
+
+        /* =========================================================================
+           3. INICIALIZACIÓN Y DETECCIÓN DEL DÍA ACTUAL
+           ========================================================================= */
+        window.onload = function() {
+            loadAppState();
+            detectCurrentWeekday();
+            renderWeekDaysSelector();
+            renderSelectedDayView();
+            renderResourcesGrid();
+            initStroopGame();
+            initMatrixGame();
+            updateTimerDisplay();
+        };
+
+        function detectCurrentWeekday() {
+            const now = new Date();
+            const options = { weekday: 'long', day: 'numeric', month: 'long' };
+            const formatted = now.toLocaleDateString('es-ES', options);
+            document.getElementById('currentDateText').textContent = formatted.charAt(0).toUpperCase() + formatted.slice(1);
+
+            const dayNum = now.getDay(); // 0 Domingo, 1 Lunes ... 6 Sábado
+            const mapDays = { 1: 'lunes', 2: 'martes', 3: 'miercoles', 4: 'jueves', 5: 'viernes' };
+            selectedDayKey = mapDays[dayNum] || 'lunes';
+        }
+
+        /* =========================================================================
+           4. NAVEGACIÓN ENTRE PESTAÑAS
+           ========================================================================= */
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+
+            document.querySelectorAll('.nav-tab').forEach(btn => {
+                btn.classList.remove('bg-indigo-600', 'text-white', 'shadow-sm');
+                btn.classList.add('text-slate-600', 'hover:bg-slate-100');
+            });
+
+            const activeBtn = document.getElementById(`tab-btn-${tabName}`);
+            if (activeBtn) {
+                activeBtn.classList.remove('text-slate-600', 'hover:bg-slate-100');
+                activeBtn.classList.add('bg-indigo-600', 'text-white', 'shadow-sm');
+            }
+        }
+
+        /* =========================================================================
+           5. LÓGICA SECCIÓN 1: PLANIFICADOR SEMANAL Y VISTA DIARIA
+           ========================================================================= */
+        function renderWeekDaysSelector() {
+            const container = document.getElementById('weekDaysSelector');
+            container.innerHTML = '';
+
+            Object.values(weekPlan).forEach(dayObj => {
+                const funcInfo = EXECUTIVE_FUNCTIONS[dayObj.func];
+                const isSelected = dayObj.key === selectedDayKey;
+                const completedCount = dayObj.scheduled.filter(s => s.completed).length;
+                const totalCount = dayObj.scheduled.length;
+
+                const btn = document.createElement('button');
+                btn.onclick = () => selectDay(dayObj.key);
+                btn.className = `p-3.5 rounded-2xl text-left transition-all border-2 flex flex-col justify-between cursor-pointer ${
+                    isSelected
+                        ? 'border-indigo-600 bg-indigo-50/70 shadow-sm scale-[1.01]'
+                        : 'border-slate-100 bg-slate-50 hover:bg-slate-100/80'
+                }`;
+
+                btn.innerHTML = `
+                    <div class="flex items-center justify-between w-full mb-1.5">
+                        <span class="font-title font-bold text-base ${isSelected ? 'text-indigo-950' : 'text-slate-700'}">${dayObj.label}</span>
+                        <span class="text-xl">${funcInfo.icon}</span>
+                    </div>
+                    <div class="text-xs font-bold text-slate-600 line-clamp-1 mb-2">${funcInfo.name}</div>
+                    <div class="flex items-center justify-between text-[11px] font-semibold text-slate-400 pt-1.5 border-t border-slate-200/60">
+                        <span>${totalCount} act.</span>
+                        <span class="${completedCount > 0 && completedCount === totalCount ? 'text-emerald-600 font-bold' : ''}">
+                            <i class="fa-solid fa-check mr-0.5"></i>${completedCount}/${totalCount}
+                        </span>
+                    </div>
+                `;
+                container.appendChild(btn);
+            });
+        }
+
+        function selectDay(dayKey) {
+            selectedDayKey = dayKey;
+            renderWeekDaysSelector();
+            renderSelectedDayView();
+        }
+
+        function renderSelectedDayView() {
+            const dayObj = weekPlan[selectedDayKey];
+            const funcInfo = EXECUTIVE_FUNCTIONS[dayObj.func];
+
+            // Actualizar Hero Banner
+            const banner = document.getElementById('dayHeroBanner');
+            banner.className = `rounded-3xl p-6 sm:p-8 text-white shadow-lg transition-all relative overflow-hidden bg-gradient-to-r ${funcInfo.bannerGradient}`;
+
+            document.getElementById('heroDayName').textContent = dayObj.label.toUpperCase();
+            document.getElementById('heroFunctionTitle').textContent = `${funcInfo.icon} ${funcInfo.name}`;
+            document.getElementById('heroFunctionDesc').textContent = funcInfo.fullDesc;
+            document.getElementById('changeDayFunctionSelect').value = dayObj.func;
+
+            // Etiquetas inferiores
+            document.getElementById('scheduledDayLabel').textContent = dayObj.label;
+            document.getElementById('notesDayLabel').textContent = dayObj.label;
+            document.getElementById('dayNotesTextarea').value = dayObj.notes || '';
+
+            // Renderizar lista de actividades programadas
+            const listEl = document.getElementById('dayScheduledList');
+            listEl.innerHTML = '';
+
+            if (dayObj.scheduled.length === 0) {
+                listEl.innerHTML = `
+                    <div class="text-center py-10 px-4 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50">
+                        <p class="text-slate-500 font-semibold mb-3">No hay actividades programadas para el ${dayObj.label}.</p>
+                        <button onclick="openAssignActivityModal()" class="bg-indigo-600 text-white font-bold px-4 py-2 rounded-xl text-sm">
+                            + Añadir una actividad del Banco
+                        </button>
+                    </div>
+                `;
+            } else {
+                dayObj.scheduled.forEach((item, index) => {
+                    const res = resources.find(r => r.id === item.resId);
+                    if (!res) return;
+                    const resFunc = EXECUTIVE_FUNCTIONS[res.func];
+
+                    const card = document.createElement('div');
+                    card.className = `p-4 sm:p-5 rounded-2xl border-2 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
+                        item.completed
+                            ? 'bg-emerald-50/50 border-emerald-200 opacity-80'
+                            : 'bg-white border-slate-200 hover:border-indigo-300 shadow-sm'
+                    }`;
+
+                    card.innerHTML = `
+                        <div class="flex items-start gap-3.5">
+                            <button onclick="toggleScheduledComplete(${index})" title="Marcar como completada" class="mt-1 w-7 h-7 rounded-xl flex items-center justify-center border-2 transition-colors shrink-0 cursor-pointer ${
+                                item.completed
+                                    ? 'bg-emerald-500 border-emerald-500 text-white'
+                                    : 'border-slate-300 hover:border-indigo-500 bg-white'
+                            }">
+                                ${item.completed ? '<i class="fa-solid fa-check text-sm"></i>' : ''}
+                            </button>
+                            <div>
+                                <div class="flex flex-wrap items-center gap-2 mb-1">
+                                    <span class="px-2.5 py-0.5 rounded-full text-xs font-bold border ${resFunc.badgeClass}">
+                                        ${resFunc.icon} ${resFunc.name}
+                                    </span>
+                                    <span class="text-xs font-semibold text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-full">
+                                        ${res.cycle}
+                                    </span>
+                                    <span class="text-xs font-semibold text-slate-500">
+                                        <i class="fa-regular fa-clock mr-1"></i>${res.duration}
+                                    </span>
+                                </div>
+                                <h4 class="font-title text-lg font-bold text-slate-900 ${item.completed ? 'line-through text-slate-500' : ''}">
+                                    ${res.title}
+                                </h4>
+                                <p class="text-sm text-slate-600 mt-1 line-clamp-2">${res.steps}</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-2 self-end sm:self-center shrink-0">
+                            <button onclick="projectResource('${res.id}')" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-3.5 py-2 rounded-xl text-xs sm:text-sm flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer">
+                                <i class="fa-solid fa-tv"></i>
+                                <span>Proyectar</span>
+                            </button>
+                            <button onclick="removeScheduledActivity(${index})" title="Quitar del día" class="p-2 text-slate-400 hover:text-red-600 rounded-xl hover:bg-red-50 transition-colors">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    `;
+                    listEl.appendChild(card);
+                });
+            }
+
+            updateWeeklyProgressUI();
+        }
+
+        function updateDayExecutiveFunction(newFuncKey) {
+            weekPlan[selectedDayKey].func = newFuncKey;
+            saveWeekState();
+            renderWeekDaysSelector();
+            renderSelectedDayView();
+            showToast(`Enfoque del ${weekPlan[selectedDayKey].label} actualizado`);
+        }
+
+        function toggleScheduledComplete(index) {
+            const item = weekPlan[selectedDayKey].scheduled[index];
+            if (item) {
+                item.completed = !item.completed;
+                saveWeekState();
+                renderWeekDaysSelector();
+                renderSelectedDayView();
+                if (item.completed) {
+                    playSoftBeep(660, 0.12);
+                    showToast('¡Actividad completada con la clase!');
+                }
+            }
+        }
+
+        function removeScheduledActivity(index) {
+            weekPlan[selectedDayKey].scheduled.splice(index, 1);
+            saveWeekState();
+            renderWeekDaysSelector();
+            renderSelectedDayView();
+        }
+
+        function saveDayNotes(text) {
+            weekPlan[selectedDayKey].notes = text;
+            saveWeekState();
+            const ind = document.getElementById('notesSavedIndicator');
+            ind.classList.remove('opacity-0');
+            clearTimeout(window.notesTimeout);
+            window.notesTimeout = setTimeout(() => ind.classList.add('opacity-0'), 1500);
+        }
+
+        function resetWeeklyChecks() {
+            Object.values(weekPlan).forEach(day => {
+                day.scheduled.forEach(item => item.completed = false);
+            });
+            saveWeekState();
+            renderWeekDaysSelector();
+            renderSelectedDayView();
+            showToast('Se han reiniciado las marcas de la semana');
+        }
+
+        function updateWeeklyProgressUI() {
+            let total = 0;
+            let done = 0;
+            Object.values(weekPlan).forEach(day => {
+                total += day.scheduled.length;
+                done += day.scheduled.filter(i => i.completed).length;
+            });
+            const percent = total === 0 ? 0 : Math.round((done / total) * 100);
+            document.getElementById('weeklyProgressText').textContent = `${done} / ${total}`;
+            document.getElementById('weeklyProgressPercent').textContent = `${percent}% completado`;
+            document.getElementById('weeklyProgressBar').style.width = `${percent}%`;
+        }
+
+        function openAssignActivityModal() {
+            const dayObj = weekPlan[selectedDayKey];
+            document.getElementById('assignModalDayName').textContent = dayObj.label;
+            const list = document.getElementById('assignModalList');
+            list.innerHTML = '';
+
+            resources.forEach(res => {
+                const funcInfo = EXECUTIVE_FUNCTIONS[res.func];
+                const item = document.createElement('div');
+                item.className = 'p-3.5 rounded-2xl border border-slate-200 hover:border-indigo-400 flex items-center justify-between gap-3 bg-slate-50/60';
+                item.innerHTML = `
+                    <div>
+                        <span class="px-2 py-0.5 rounded-full text-[11px] font-bold border ${funcInfo.badgeClass}">
+                            ${funcInfo.icon} ${funcInfo.name}
+                        </span>
+                        <span class="text-xs text-slate-500 ml-1">${res.cycle}</span>
+                        <h4 class="font-bold text-slate-900 text-sm mt-1">${res.title}</h4>
+                    </div>
+                    <button onclick="assignActivityToCurrentDay('${res.id}')" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-3.5 py-2 rounded-xl text-xs shrink-0 cursor-pointer">
+                        + Añadir
+                    </button>
+                `;
+                list.appendChild(item);
+            });
+
+            document.getElementById('assignModal').classList.remove('hidden');
+        }
+
+        function closeAssignActivityModal() {
+            document.getElementById('assignModal').classList.add('hidden');
+        }
+
+        function assignActivityToCurrentDay(resId) {
+            weekPlan[selectedDayKey].scheduled.push({ resId, completed: false });
+            saveWeekState();
+            renderWeekDaysSelector();
+            renderSelectedDayView();
+            closeAssignActivityModal();
+            showToast(`Actividad añadida al ${weekPlan[selectedDayKey].label}`);
+        }
+
+        function filterBankByCurrentDayFunction() {
+            const currentFunc = weekPlan[selectedDayKey].func;
+            document.getElementById('filterFunction').value = currentFunc;
+            renderResourcesGrid();
+            switchTab('banco');
+        }
+
+        /* =========================================================================
+           6. RETO SORPRESA DEL DÍA Y MODAL PROYECTOR
+           ========================================================================= */
+        function openSurpriseChallenge() {
+            const currentFunc = weekPlan[selectedDayKey].func;
+            const matching = resources.filter(r => r.func === currentFunc);
+            const pool = matching.length > 0 ? matching : resources;
+            const randomRes = pool[Math.floor(Math.random() * pool.length)];
+            if (randomRes) {
+                projectResource(randomRes.id);
+            }
+        }
+
+        function projectResource(resId) {
+            const res = resources.find(r => r.id === resId);
+            if (!res) return;
+            const funcInfo = EXECUTIVE_FUNCTIONS[res.func];
+
+            document.getElementById('projBadges').innerHTML = `
+                <span class="px-3.5 py-1 rounded-full text-sm font-bold border ${funcInfo.badgeClass}">
+                    ${funcInfo.icon} ${funcInfo.name}
+                </span>
+                <span class="px-3.5 py-1 rounded-full text-sm font-bold bg-slate-100 text-slate-700">
+                    🎓 ${res.cycle}
+                </span>
+                <span class="px-3.5 py-1 rounded-full text-sm font-bold bg-slate-100 text-slate-700">
+                    ⏱️ ${res.duration}
+                </span>
+                <span class="px-3.5 py-1 rounded-full text-sm font-bold bg-slate-100 text-slate-700">
+                    ${res.modality}
+                </span>
+            `;
+
+            document.getElementById('projTitle').textContent = res.title;
+            document.getElementById('projChildPrompt').textContent = `"${res.childPrompt}"`;
+            document.getElementById('projTeacherSteps').textContent = res.steps;
+
+            const linkWrap = document.getElementById('projExternalLinkWrap');
+            if (res.link && res.link.trim() !== '') {
+                linkWrap.innerHTML = `
+                    <a href="${res.link}" target="_blank" rel="noopener noreferrer" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-5 py-3 rounded-xl inline-flex items-center gap-2 shadow-sm">
+                        <i class="fa-solid fa-up-right-from-square"></i>
+                        <span>Abrir Recurso Digital Externo</span>
+                    </a>
+                `;
+            } else {
+                linkWrap.innerHTML = '';
+            }
+
+            document.getElementById('projectorModal').classList.remove('hidden');
+        }
+
+        function closeProjectorModal() {
+            document.getElementById('projectorModal').classList.add('hidden');
+        }
+
+        /* =========================================================================
+           7. LÓGICA SECCIÓN 2: BANCO DE RECURSOS (CRUD + FILTROS + JSON)
+           ========================================================================= */
+        function renderResourcesGrid() {
+            const search = document.getElementById('filterSearch').value.toLowerCase().trim();
+            const funcFilter = document.getElementById('filterFunction').value;
+            const cycleFilter = document.getElementById('filterCycle').value;
+            const modFilter = document.getElementById('filterModality').value;
+
+            const filtered = resources.filter(r => {
+                const matchSearch = r.title.toLowerCase().includes(search) ||
+                                    r.steps.toLowerCase().includes(search) ||
+                                    r.childPrompt.toLowerCase().includes(search);
+                const matchFunc = funcFilter === 'todas' || r.func === funcFilter;
+                const matchCycle = cycleFilter === 'todos' || r.cycle === cycleFilter;
+                const matchMod = modFilter === 'todas' || r.modality === modFilter;
+                return matchSearch && matchFunc && matchCycle && matchMod;
+            });
+
+            document.getElementById('totalResourcesBadge').textContent = resources.length;
+            const grid = document.getElementById('resourcesGrid');
+            grid.innerHTML = '';
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full bg-white rounded-3xl p-12 text-center border border-slate-200">
+                        <i class="fa-solid fa-magnifying-glass text-4xl text-slate-300 mb-3"></i>
+                        <h3 class="font-title text-xl font-bold text-slate-700">No se encontraron actividades con esos filtros</h3>
+                        <p class="text-sm text-slate-500 mt-1">Prueba a cambiar los criterios de búsqueda o añade un nuevo recurso propio.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            filtered.forEach(res => {
+                const funcInfo = EXECUTIVE_FUNCTIONS[res.func] || EXECUTIVE_FUNCTIONS.inhibicion;
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-3xl p-6 shadow-sm border border-slate-200 hover:shadow-md transition-all flex flex-col justify-between';
+
+                card.innerHTML = `
+                    <div>
+                        <!-- Cabecera de etiquetas -->
+                        <div class="flex items-center justify-between gap-2 mb-3">
+                            <span class="px-3 py-1 rounded-full text-xs font-bold border ${funcInfo.badgeClass}">
+                                ${funcInfo.icon} ${funcInfo.name}
+                            </span>
+                            <div class="flex items-center gap-1">
+                                <button onclick="editResource('${res.id}')" title="Editar recurso" class="p-2 text-slate-400 hover:text-indigo-600 rounded-lg hover:bg-slate-100">
+                                    <i class="fa-solid fa-pen text-xs"></i>
+                                </button>
+                                <button onclick="deleteResource('${res.id}')" title="Eliminar recurso" class="p-2 text-slate-400 hover:text-red-600 rounded-lg hover:bg-red-50">
+                                    <i class="fa-solid fa-trash text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Título y metadatos -->
+                        <h3 class="font-title text-xl font-bold text-slate-900 mb-2 leading-snug">${res.title}</h3>
+                        
+                        <div class="flex flex-wrap gap-2 text-xs font-semibold text-slate-500 mb-4">
+                            <span class="bg-slate-100 px-2.5 py-1 rounded-lg">🎓 ${res.cycle}</span>
+                            <span class="bg-slate-100 px-2.5 py-1 rounded-lg">⏱️ ${res.duration}</span>
+                            <span class="bg-slate-100 px-2.5 py-1 rounded-lg">${res.modality}</span>
+                        </div>
+
+                        <!-- Explicación para maestra -->
+                        <p class="text-sm text-slate-600 mb-4 leading-relaxed">${res.steps}</p>
+
+                        <!-- Consigna niños -->
+                        <div class="bg-indigo-50/70 border border-indigo-100 rounded-2xl p-3.5 mb-5">
+                            <span class="block text-[11px] font-extrabold uppercase text-indigo-600 mb-0.5">
+                                <i class="fa-solid fa-comment-dots mr-1"></i>Consigna para los niños:
+                            </span>
+                            <p class="text-xs sm:text-sm font-semibold text-slate-800 italic">"${res.childPrompt}"</p>
+                        </div>
+                    </div>
+
+                    <!-- Botones de Acción de la Tarjeta -->
+                    <div class="pt-3 border-t border-slate-100 flex flex-wrap items-center gap-2">
+                        <button onclick="projectResource('${res.id}')" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-3 rounded-xl text-xs sm:text-sm flex items-center justify-center gap-1.5 shadow-sm transition-colors cursor-pointer">
+                            <i class="fa-solid fa-tv"></i>
+                            <span>Proyectar en Clase</span>
+                        </button>
+                        <button onclick="addResourceToTodayPlan('${res.id}')" class="bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 text-slate-700 font-bold py-2.5 px-3 rounded-xl text-xs sm:text-sm flex items-center justify-center gap-1 transition-colors cursor-pointer" title="Añadir al día seleccionado">
+                            <i class="fa-solid fa-calendar-plus"></i>
+                            <span>Al plan</span>
+                        </button>
+                        ${res.link ? `
+                            <a href="${res.link}" target="_blank" rel="noopener noreferrer" title="Abrir enlace web" class="p-2.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-xl text-sm">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                            </a>
+                        ` : ''}
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function addResourceToTodayPlan(resId) {
+            weekPlan[selectedDayKey].scheduled.push({ resId, completed: false });
+            saveWeekState();
+            renderWeekDaysSelector();
+            renderSelectedDayView();
+            showToast(`Añadido al plan del ${weekPlan[selectedDayKey].label}`);
+        }
+
+        function openResourceModal(editId = null) {
+            const form = document.getElementById('resourceForm');
+            form.reset();
+            document.getElementById('resId').value = '';
+            document.getElementById('resourceModalHeading').textContent = '✨ Nuevo Recurso de Aula';
+
+            if (editId) {
+                const res = resources.find(r => r.id === editId);
+                if (res) {
+                    document.getElementById('resourceModalHeading').textContent = '✏️ Editar Recurso';
+                    document.getElementById('resId').value = res.id;
+                    document.getElementById('resTitle').value = res.title;
+                    document.getElementById('resFunction').value = res.func;
+                    document.getElementById('resCycle').value = res.cycle;
+                    document.getElementById('resModality').value = res.modality;
+                    document.getElementById('resDuration').value = res.duration;
+                    document.getElementById('resSteps').value = res.steps;
+                    document.getElementById('resChildPrompt').value = res.childPrompt;
+                    document.getElementById('resLink').value = res.link || '';
+                }
+            }
+            document.getElementById('resourceFormModal').classList.remove('hidden');
+        }
+
+        function closeResourceModal() {
+            document.getElementById('resourceFormModal').classList.add('hidden');
+        }
+
+        function editResource(id) {
+            openResourceModal(id);
+        }
+
+        function saveResourceForm(e) {
+            e.preventDefault();
+            const id = document.getElementById('resId').value;
+            const newRes = {
+                id: id || 'res-' + Date.now(),
+                title: document.getElementById('resTitle').value.trim(),
+                func: document.getElementById('resFunction').value,
+                cycle: document.getElementById('resCycle').value,
+                modality: document.getElementById('resModality').value,
+                duration: document.getElementById('resDuration').value.trim(),
+                steps: document.getElementById('resSteps').value.trim(),
+                childPrompt: document.getElementById('resChildPrompt').value.trim(),
+                link: document.getElementById('resLink').value.trim()
+            };
+
+            if (id) {
+                const idx = resources.findIndex(r => r.id === id);
+                if (idx !== -1) resources[idx] = newRes;
+                showToast('Recurso actualizado correctamente');
+            } else {
+                resources.unshift(newRes);
+                showToast('Nuevo recurso guardado en tu banco');
+            }
+
+            saveResourcesState();
+            renderResourcesGrid();
+            renderSelectedDayView();
+            closeResourceModal();
+        }
+
+        function deleteResource(id) {
+            resources = resources.filter(r => r.id !== id);
+            // También limpiarlo si estaba programado en algún día
+            Object.values(weekPlan).forEach(day => {
+                day.scheduled = day.scheduled.filter(s => s.resId !== id);
+            });
+            saveResourcesState();
+            saveWeekState();
+            renderResourcesGrid();
+            renderWeekDaysSelector();
+            renderSelectedDayView();
+            showToast('Recurso eliminado');
+        }
+
+        function exportResourcesJSON() {
+            const backup = {
+                version: 1,
+                exportDate: new Date().toISOString(),
+                resources,
+                weekPlan
+            };
+            const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'cerebro_en_marcha_backup.json';
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('Copia de seguridad descargada');
+        }
+
+        function importResourcesJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (Array.isArray(data.resources)) {
+                        resources = data.resources;
+                        saveResourcesState();
+                    }
+                    if (data.weekPlan) {
+                        weekPlan = data.weekPlan;
+                        saveWeekState();
+                    }
+                    renderResourcesGrid();
+                    renderWeekDaysSelector();
+                    renderSelectedDayView();
+                    showToast('Copia de seguridad restaurada con éxito');
+                } catch (err) {
+                    showToast('El archivo JSON no tiene un formato válido');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        /* =========================================================================
+           8. SECCIÓN 3: MINI-JUEGOS DE PIZARRA DIGITAL
+           ========================================================================= */
+        function switchMiniGame(game) {
+            const stroopCont = document.getElementById('game-stroop-container');
+            const matrizCont = document.getElementById('game-matriz-container');
+            const btnStroop = document.getElementById('btn-game-stroop');
+            const btnMatriz = document.getElementById('btn-game-matriz');
+
+            if (game === 'stroop') {
+                stroopCont.classList.remove('hidden');
+                matrizCont.classList.add('hidden');
+                btnStroop.className = 'flex-1 sm:flex-initial px-5 py-2.5 rounded-xl font-bold text-sm bg-indigo-600 text-white shadow-sm transition-all';
+                btnMatriz.className = 'flex-1 sm:flex-initial px-5 py-2.5 rounded-xl font-bold text-sm bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all';
+            } else {
+                stroopCont.classList.add('hidden');
+                matrizCont.classList.remove('hidden');
+                btnMatriz.className = 'flex-1 sm:flex-initial px-5 py-2.5 rounded-xl font-bold text-sm bg-purple-600 text-white shadow-sm transition-all';
+                btnStroop.className = 'flex-1 sm:flex-initial px-5 py-2.5 rounded-xl font-bold text-sm bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all';
+            }
+        }
+
+        /* --- JUEGO 1: RETO STROOP --- */
+        const STROOP_COLORS = [
+            { name: 'ROJO', hex: '#EF4444' },
+            { name: 'AZUL', hex: '#2563EB' },
+            { name: 'VERDE', hex: '#16A34A' },
+            { name: 'AMARILLO', hex: '#EAB308' },
+            { name: 'MORADO', hex: '#9333EA' },
+            { name: 'NARANJA', hex: '#F97316' }
+        ];
+
+        let stroopMode = 'color'; // 'color', 'word', 'random'
+        let currentActiveRule = 'color'; // 'color' o 'word'
+        let stroopScoreVal = 0;
+        let stroopAutoInterval = null;
+
+        function initStroopGame() {
+            nextStroopStimulus(false);
+        }
+
+        function setStroopRule(mode) {
+            stroopMode = mode;
+            ['color', 'word', 'random'].forEach(m => {
+                const btn = document.getElementById(`rule-btn-${m}`);
+                if (m === mode) {
+                    btn.className = 'p-3 rounded-xl font-bold text-left border-2 border-indigo-600 bg-indigo-50 text-indigo-900 flex items-center justify-between';
+                } else {
+                    btn.className = 'p-3 rounded-xl font-bold text-left border-2 border-slate-200 bg-white text-slate-700 flex items-center justify-between';
+                }
+            });
+            nextStroopStimulus(true);
+        }
+
+        function nextStroopStimulus(playSound = true) {
+            // Elegir palabra y color de tinta diferentes para forzar el conflicto cognitivo
+            const wordObj = STROOP_COLORS[Math.floor(Math.random() * STROOP_COLORS.length)];
+            let inkObj = STROOP_COLORS[Math.floor(Math.random() * STROOP_COLORS.length)];
+            while (inkObj.name === wordObj.name) {
+                inkObj = STROOP_COLORS[Math.floor(Math.random() * STROOP_COLORS.length)];
+            }
+
+            if (stroopMode === 'random') {
+                currentActiveRule = Math.random() > 0.5 ? 'color' : 'word';
+            } else {
+                currentActiveRule = stroopMode;
+            }
+
+            // Actualizar banner de regla
+            const banner = document.getElementById('stroopRuleBanner');
+            const bannerText = document.getElementById('stroopRuleBannerText');
+            if (currentActiveRule === 'color') {
+                banner.className = 'mb-8 px-6 py-3 rounded-2xl bg-amber-400 text-slate-950 font-extrabold text-lg sm:text-2xl shadow-lg flex items-center gap-3';
+                bannerText.textContent = '🎨 NORMA: ¡Di el COLOR de la tinta!';
+            } else {
+                banner.className = 'mb-8 px-6 py-3 rounded-2xl bg-cyan-400 text-slate-950 font-extrabold text-lg sm:text-2xl shadow-lg flex items-center gap-3';
+                bannerText.textContent = '📖 NORMA: ¡Lee lo que DICE la palabra!';
+            }
+
+            const wordEl = document.getElementById('stroopStimulusWord');
+            wordEl.textContent = wordObj.name;
+            wordEl.style.color = inkObj.hex;
+
+            const correctAns = currentActiveRule === 'color' ? inkObj.name : wordObj.name;
+            document.getElementById('stroopAnswerHint').textContent = `(Respuesta correcta: ${correctAns})`;
+
+            if (playSound) playSoftBeep(520, 0.06);
+        }
+
+        function forceSurpriseRuleChange() {
+            currentActiveRule = currentActiveRule === 'color' ? 'word' : 'color';
+            stroopMode = currentActiveRule;
+            setStroopRule(stroopMode);
+            playSoftBeep(780, 0.15);
+            showToast('¡Cambio sorpresa de norma en la pizarra!');
+        }
+
+        function toggleStroopAuto() {
+            const btn = document.getElementById('stroopAutoBtn');
+            if (stroopAutoInterval) {
+                clearInterval(stroopAutoInterval);
+                stroopAutoInterval = null;
+                btn.innerHTML = '<i class="fa-solid fa-play mr-1"></i> Activar Auto';
+                btn.className = 'px-4 py-2 rounded-xl font-bold text-sm bg-slate-200 text-slate-700 hover:bg-slate-300 transition-colors';
+            } else {
+                stroopAutoInterval = setInterval(() => nextStroopStimulus(true), 3000);
+                btn.innerHTML = '<i class="fa-solid fa-stop mr-1"></i> Parar Auto';
+                btn.className = 'px-4 py-2 rounded-xl font-bold text-sm bg-red-500 text-white hover:bg-red-600 transition-colors';
+            }
+        }
+
+        function addStroopPoint(val) {
+            if (val === 0) {
+                stroopScoreVal = 0;
+            } else {
+                stroopScoreVal += val;
+                playSoftBeep(880, 0.1);
+            }
+            document.getElementById('stroopScore').textContent = stroopScoreVal;
+        }
+
+        /* --- JUEGO 2: MATRIZ DE MEMORIA VISUAL --- */
+        const MATRIX_ICONS = ['🦊', '🚀', '🎨', '⚽', '🦖', '🌈', '🎸', '🧩', '🍎', '🐝', '🌍', '🔭'];
+        let matrixSize = 3; // 3x3 o 4x4
+        let matrixTargetCount = 4;
+        let matrixTargets = {}; // { '0-1': '🦊', ... }
+        let matrixFound = {};
+        let matrixPhase = 'idle'; // 'memorize', 'play', 'idle'
+
+        function initMatrixGame() {
+            renderMatrixBoard();
+        }
+
+        function setMatrixSize(size) {
+            matrixSize = size;
+            document.getElementById('matrix-size-3').className = size === 3
+                ? 'p-2.5 rounded-xl font-bold text-sm border-2 border-purple-600 bg-purple-50 text-purple-900'
+                : 'p-2.5 rounded-xl font-bold text-sm border-2 border-slate-200 bg-white text-slate-700';
+            document.getElementById('matrix-size-4').className = size === 4
+                ? 'p-2.5 rounded-xl font-bold text-sm border-2 border-purple-600 bg-purple-50 text-purple-900'
+                : 'p-2.5 rounded-xl font-bold text-sm border-2 border-slate-200 bg-white text-slate-700';
+            matrixPhase = 'idle';
+            matrixTargets = {};
+            matrixFound = {};
+            renderMatrixBoard();
+        }
+
+        function updateMatrixItemsCount(val) {
+            matrixTargetCount = parseInt(val, 10);
+            document.getElementById('matrixItemsCountLabel').textContent = `${matrixTargetCount} objetos`;
+            document.getElementById('matrixFoundCounter').textContent = `0 / ${matrixTargetCount}`;
+        }
+
+        function startMatrixRound() {
+            matrixTargets = {};
+            matrixFound = {};
+            const totalCells = matrixSize * matrixSize;
+            const count = Math.min(matrixTargetCount, totalCells - 1);
+
+            const availablePositions = [];
+            for (let r = 0; r < matrixSize; r++) {
+                for (let c = 0; c < matrixSize; c++) {
+                    availablePositions.push(`${r}-${c}`);
+                }
+            }
+
+            const shuffledIcons = [...MATRIX_ICONS].sort(() => Math.random() - 0.5);
+
+            for (let i = 0; i < count; i++) {
+                const randIdx = Math.floor(Math.random() * availablePositions.length);
+                const posKey = availablePositions.splice(randIdx, 1)[0];
+                matrixTargets[posKey] = shuffledIcons[i];
+            }
+
+            matrixPhase = 'memorize';
+            document.getElementById('matrixFoundCounter').textContent = `0 / ${count}`;
+            document.getElementById('matrixStatusBanner').textContent = '👀 ¡MEMORIZAD LAS POSICIONES! Ocultando en 4 segundos...';
+            renderMatrixBoard();
+
+            clearTimeout(window.matrixHideTimeout);
+            window.matrixHideTimeout = setTimeout(() => {
+                matrixPhase = 'play';
+                document.getElementById('matrixStatusBanner').textContent = '👆 ¡Tocad las casillas o decid la coordenada (ej. A2) donde había objetos!';
+                renderMatrixBoard();
+                playSoftBeep(440, 0.1);
+            }, 4000);
+        }
+
+        function handleMatrixCellClick(posKey) {
+            if (matrixPhase !== 'play') return;
+
+            if (matrixTargets[posKey]) {
+                matrixFound[posKey] = true;
+                playSoftBeep(740, 0.1);
+                renderMatrixBoard();
+
+                const foundTotal = Object.keys(matrixFound).length;
+                const targetTotal = Object.keys(matrixTargets).length;
+                document.getElementById('matrixFoundCounter').textContent = `${foundTotal} / ${targetTotal}`;
+
+                if (foundTotal === targetTotal) {
+                    matrixPhase = 'idle';
+                    document.getElementById('matrixStatusBanner').textContent = '🎉 ¡EXCELENTE MEMORIA DE TRABAJO! Habéis encontrado todos los objetos.';
+                    showToast('¡Reto de memoria superado!');
+                }
+            } else {
+                playSoftBeep(220, 0.15);
+                const cellBtn = document.getElementById(`matrix-cell-${posKey}`);
+                if (cellBtn) {
+                    cellBtn.classList.add('bg-red-500/40');
+                    setTimeout(() => cellBtn.classList.remove('bg-red-500/40'), 500);
+                }
+            }
+        }
+
+        function revealMatrixSolution() {
+            Object.keys(matrixTargets).forEach(k => matrixFound[k] = true);
+            matrixPhase = 'idle';
+            renderMatrixBoard();
+            document.getElementById('matrixStatusBanner').textContent = '✨ Solución mostrada en pantalla.';
+        }
+
+        function renderMatrixBoard() {
+            const wrapper = document.getElementById('matrixBoardWrapper');
+            const rowsLetters = ['A', 'B', 'C', 'D'];
+
+            let html = `<div class="grid gap-3" style="grid-template-columns: 36px repeat(${matrixSize}, minmax(0, 1fr));">`;
+            // Fila superior de números (1, 2, 3...)
+            html += `<div></div>`;
+            for (let c = 1; c <= matrixSize; c++) {
+                html += `<div class="text-center font-title font-bold text-purple-300 text-lg">${c}</div>`;
+            }
+
+            // Filas con letra + celdas
+            for (let r = 0; r < matrixSize; r++) {
+                html += `<div class="flex items-center justify-center font-title font-bold text-purple-300 text-lg">${rowsLetters[r]}</div>`;
+                for (let c = 0; c < matrixSize; c++) {
+                    const key = `${r}-${c}`;
+                    const icon = matrixTargets[key];
+                    const isVisible = (matrixPhase === 'memorize' && icon) || (matrixFound[key] && icon);
+
+                    html += `
+                        <button id="matrix-cell-${key}" onclick="handleMatrixCellClick('${key}')" class="aspect-square rounded-2xl border-2 flex items-center justify-center text-4xl sm:text-5xl transition-all cursor-pointer select-none ${
+                            isVisible
+                                ? 'bg-amber-300 border-amber-400 shadow-lg scale-105'
+                                : 'bg-slate-800 border-slate-700 hover:border-purple-400'
+                        }">
+                            ${isVisible ? icon : `<span class="text-xs font-bold text-slate-600">${rowsLetters[r]}${c + 1}</span>`}
+                        </button>
+                    `;
+                }
+            }
+            html += `</div>`;
+            wrapper.innerHTML = html;
+        }
+
+        /* =========================================================================
+           9. SECCIÓN 4: TEMPORIZADOR VISUAL Y SEMÁFORO DE MEICHENBAUM
+           ========================================================================= */
+        let timerTotalSeconds = 300;
+        let timerRemainingSeconds = 300;
+        let timerInterval = null;
+        const CIRCLE_CIRCUMFERENCE = 326.72; // 2 * PI * 52
+
+        function setTimerMinutes(mins) {
+            pauseTimer();
+            timerTotalSeconds = mins * 60;
+            timerRemainingSeconds = timerTotalSeconds;
+            updateTimerDisplay();
+            document.getElementById('timerStateSubtext').textContent = `${mins} minutos seleccionados`;
+        }
+
+        function toggleTimerStartPause() {
+            if (timerInterval) {
+                pauseTimer();
+            } else {
+                startTimer();
+            }
+        }
+
+        function startTimer() {
+            if (timerRemainingSeconds <= 0) {
+                timerRemainingSeconds = timerTotalSeconds;
+            }
+            const btn = document.getElementById('timerStartBtn');
+            btn.innerHTML = '<i class="fa-solid fa-pause"></i><span>Pausar</span>';
+            document.getElementById('timerStateSubtext').textContent = 'Tiempo en marcha...';
+
+            timerInterval = setInterval(() => {
+                timerRemainingSeconds--;
+                updateTimerDisplay();
+
+                if (timerRemainingSeconds <= 0) {
+                    pauseTimer();
+                    document.getElementById('timerStateSubtext').textContent = '¡Tiempo finalizado!';
+                    playTimerAlarm();
+                    showToast('⏰ ¡El tiempo de la actividad ha terminado!');
+                }
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            const btn = document.getElementById('timerStartBtn');
+            btn.innerHTML = '<i class="fa-solid fa-play"></i><span>Iniciar Tiempo</span>';
+        }
+
+        function resetTimer() {
+            pauseTimer();
+            timerRemainingSeconds = timerTotalSeconds;
+            updateTimerDisplay();
+            document.getElementById('timerStateSubtext').textContent = 'Tiempo reiniciado';
+        }
+
+        function updateTimerDisplay() {
+            const mins = Math.floor(timerRemainingSeconds / 60);
+            const secs = timerRemainingSeconds % 60;
+            document.getElementById('timerDisplayText').textContent =
+                `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+
+            const fraction = timerTotalSeconds > 0 ? timerRemainingSeconds / timerTotalSeconds : 0;
+            const offset = CIRCLE_CIRCUMFERENCE * (1 - fraction);
+            const circle = document.getElementById('timerProgressCircle');
+            circle.style.strokeDashoffset = offset;
+
+            // Cambiar color del disco según tiempo restante
+            if (fraction > 0.5) {
+                circle.setAttribute('stroke', '#3B82F6'); // Azul tranquilo
+            } else if (fraction > 0.2) {
+                circle.setAttribute('stroke', '#F59E0B'); // Ámbar atención
+            } else {
+                circle.setAttribute('stroke', '#EF4444'); // Rojo últimos momentos
+            }
+        }
+
+        /* --- SEMÁFORO DE LA AUTORREGULACIÓN --- */
+        function activateTrafficLight(color) {
+            const configs = {
+                red: {
+                    card: 'light-card-red',
+                    activeClass: 'border-red-500 bg-red-50 shadow-sm opacity-100 scale-[1.01]',
+                    msg: '🛑 Fase ROJA: Paramos, respiramos y escuchamos las normas.'
+                },
+                yellow: {
+                    card: 'light-card-yellow',
+                    activeClass: 'border-amber-400 bg-amber-50 shadow-sm opacity-100 scale-[1.01]',
+                    msg: '🤔 Fase AMARILLA: Pensamos nuestra estrategia y preparamos el plan.'
+                },
+                green: {
+                    card: 'light-card-green',
+                    activeClass: 'border-emerald-500 bg-emerald-50 shadow-sm opacity-100 scale-[1.01]',
+                    msg: '🚀 Fase VERDE: ¡Ponemos en marcha nuestro plan y revisamos!'
+                }
+            };
+
+            ['red', 'yellow', 'green'].forEach(c => {
+                const el = document.getElementById(configs[c].card);
+                el.className = 'cursor-pointer rounded-2xl p-5 border-2 transition-all flex items-center gap-5 ';
+                if (c === color) {
+                    el.className += configs[c].activeClass;
+                } else {
+                    el.className += 'border-slate-200 bg-white opacity-55 hover:opacity-90';
+                }
+            });
+
+            playSoftBeep(600, 0.08);
+            showToast(configs[color].msg);
+        }
+
+        /* =========================================================================
+           10. UTILIDADES DE AUDIO (WEB AUDIO API SIN ARCHIVOS EXTERNOS) Y PANTALLA
+           ========================================================================= */
+        function playSoftBeep(freq = 520, duration = 0.1) {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, ctx.currentTime);
+                gain.gain.setValueAtTime(0.12, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + duration);
+            } catch (e) {
+                // Ignorar si el navegador bloquea el audio antes de interacción
+            }
+        }
+
+        function playTimerAlarm() {
+            playSoftBeep(523.25, 0.18);
+            setTimeout(() => playSoftBeep(659.25, 0.18), 200);
+            setTimeout(() => playSoftBeep(783.99, 0.35), 400);
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toastNotification');
+            document.getElementById('toastMessage').textContent = message;
+            toast.classList.remove('hidden');
+            clearTimeout(window.toastTimer);
+            window.toastTimer = setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3000);
+        }
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => {});
+            } else {
+                document.exitFullscreen().catch(() => {});
+            }
+        }
+    </script>
+</body>
+</html>
+```
